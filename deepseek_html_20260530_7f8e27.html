@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Маруся, пойдём гулять?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pure-black: #000000;
+            --rich-black: #0a0a0a;
+            --dark-gray: #1a1a1a;
+            --mid-gray: #2a2a2a;
+            --border-gray: #333333;
+            --light-gray: #666666;
+            --text-gray: #888888;
+            --pure-white: #ffffff;
+            --off-white: #e0e0e0;
+            --safe-bottom: env(safe-area-inset-bottom, 16px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Cinzel Decorative', 'UnifrakturMaguntia', cursive;
+            background: var(--pure-black);
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 4px,
+                    rgba(30, 30, 30, 0.08) 4px,
+                    rgba(30, 30, 30, 0.08) 8px
+                ),
+                radial-gradient(ellipse at 50% 20%, rgba(40, 40, 40, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 100%, rgba(20, 20, 20, 0.1) 0%, transparent 50%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 10px;
+        }
+
+        /* Частицы пепла */
+        .ash-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ash {
+            position: absolute;
+            background: rgba(150, 150, 150, 0.15);
+            border-radius: 50%;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.1;
+            }
+            100% {
+                transform: translateY(110vh) translateX(40px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Чёрно-белая рамка */
+        .gothic-border {
+            position: fixed;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 2px solid var(--dark-gray);
+            box-shadow: 
+                inset 0 0 60px rgba(0, 0, 0, 0.9),
+                0 0 25px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .border-cross {
+            position: fixed;
+            font-size: 28px;
+            color: var(--mid-gray);
+            pointer-events: none;
+            z-index: 3;
+            animation: crossFade 4s ease-in-out infinite;
+        }
+
+        @keyframes crossFade {
+            0%, 100% { color: var(--dark-gray); }
+            50% { color: var(--mid-gray); }
+        }
+
+        .border-cross.tl { top: 0; left: 2px; }
+        .border-cross.tr { top: 0; right: 2px; animation-delay: 1s; }
+        .border-cross.bl { bottom: 0; left: 2px; animation-delay: 2s; }
+        .border-cross.br { bottom: 0; right: 2px; animation-delay: 3s; }
+
+        /* Контейнер */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Экран вопроса */
+        .question-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            width: 100%;
+        }
+
+        .question-screen.hidden {
+            display: none;
+        }
+
+        /* Орнамент */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .ornament-divider .line-segment {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--mid-gray), transparent);
+            max-width: 60px;
+        }
+
+        .ornament-divider .symbol {
+            font-size: 18px;
+            color: var(--light-gray);
+            animation: symbolGlow 3s infinite;
+        }
+
+        @keyframes symbolGlow {
+            0%, 100% { color: var(--light-gray); text-shadow: none; }
+            50% { color: var(--off-white); text-shadow: 0 0 8px rgba(255, 255, 255, 0.3); }
+        }
+
+        /* Заголовок */
+        .title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(1.7rem, 6.5vw, 2.5rem);
+            color: var(--text-gray);
+            text-align: center;
+            text-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.08),
+                2px 2px 0 var(--pure-black);
+            letter-spacing: 2px;
+            line-height: 1.35;
+            font-weight: 900;
+            animation: titlePulse 5s ease-in-out infinite;
+        }
+
+        .title .accent-name {
+            display: inline;
+            color: var(--pure-white);
+            text-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.2),
+                0 0 40px rgba(255, 255, 255, 0.1),
+                0 0 60px rgba(255, 255, 255, 0.05);
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { 
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.08), 2px 2px 0 var(--pure-black);
+            }
+            50% { 
+                text-shadow: 0 0 25px rgba(255, 255, 255, 0.15), 2px 2px 0 var(--pure-black);
+            }
+        }
+
+        /* Арена кнопок */
+        .button-arena {
+            position: relative;
+            width: 100%;
+            height: 290px;
+            border: 2px solid var(--dark-gray);
+            background: 
+                radial-gradient(ellipse at center, rgba(40, 40, 40, 0.1) 0%, transparent 65%);
+            box-shadow: 
+                inset 0 0 40px rgba(0, 0, 0, 0.8);
+            touch-action: none;
+        }
+
+        /* Кнопка ДА */
+        .btn-yes {
+            position: absolute;
+            left: 50%;
+            top: 35%;
+            transform: translate(-50%, -50%);
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 900;
+            font-size: clamp(1.4rem, 5vw, 1.8rem);
+            color: var(--pure-black);
+            background: var(--pure-white);
+            border: 2px solid var(--pure-white);
+            padding: 16px 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            box-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.3),
+                0 0 60px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            z-index: 10;
+            clip-path: polygon(
+                10% 0%, 90% 0%, 
+                100% 20%, 100% 80%, 
+                90% 100%, 10% 100%, 
+                0% 80%, 0% 20%
+            );
+        }
+
+        @media (hover: hover) {
+            .btn-yes:hover {
+                background: var(--pure-black);
+                color: var(--pure-white);
+                border-color: var(--pure-white);
+                box-shadow: 
+                    0 0 50px rgba(255, 255, 255, 0.5),
+                    0 0 100px rgba(255, 255, 255, 0.2);
+                transform: translate(-50%, -50%) scale(1.08);
+                letter-spacing: 8px;
+            }
+        }
+
+        .btn-yes:active {
+            background: var(--pure-black);
+            color: var(--pure-white);
+            border-color: var(--pure-white);
+            box-shadow: 
+                0 0 60px rgba(255, 255, 255, 0.6),
+                0 0 120px rgba(255, 255, 255, 0.25);
+            transform: translate(-50%, -50%) scale(0.93);
+            transition: all 0.08s ease;
+        }
+
+        /* Кнопка НЕТ */
+        .btn-no {
+            position: absolute;
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            font-size: clamp(1.2rem, 4.5vw, 1.5rem);
+            color: var(--pure-white);
+            background: var(--pure-black);
+            border: 2px solid var(--dark-gray);
+            padding: 14px 40px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            box-shadow: 
+                0 0 15px rgba(0, 0, 0, 0.5);
+            transition: left 0.08s ease-out, top 0.08s ease-out, transform 0.2s, box-shadow 0.3s, border-color 0.3s, background 0.3s, color 0.3s;
+            z-index: 20;
+            white-space: nowrap;
+            clip-path: polygon(
+                8% 0%, 92% 0%, 
+                100% 18%, 100% 82%, 
+                92% 100%, 8% 100%, 
+                0% 82%, 0% 18%
+            );
+            left: 52%;
+            top: 60%;
+        }
+
+        @media (hover: hover) {
+            .btn-no:hover {
+                background: var(--dark-gray);
+                border-color: var(--light-gray);
+                box-shadow: 
+                    0 0 25px rgba(255, 255, 255, 0.15),
+                    0 0 50px rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        .btn-no:active {
+            background: var(--mid-gray);
+            border-color: var(--pure-white);
+            box-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Экран выбора даты */
+        .date-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 30px 16px;
+            border: 2px solid var(--dark-gray);
+            box-shadow: 
+                0 0 50px rgba(0, 0, 0, 0.9),
+                inset 0 0 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .date-screen.hidden {
+            display: none;
+        }
+
+        .date-screen h2 {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(1.2rem, 4.5vw, 1.6rem);
+            color: var(--text-gray);
+            text-align: center;
+            letter-spacing: 2px;
+            line-height: 1.4;
+        }
+
+        .date-screen h2 .white-name {
+            color: var(--pure-white);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+        }
+
+        .date-input {
+            font-family: 'Cinzel Decorative', cursive;
+            padding: 12px 16px;
+            font-size: 1.1rem;
+            background: var(--pure-black);
+            border: 2px solid var(--dark-gray);
+            color: var(--off-white);
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 260px;
+            text-align: center;
+            letter-spacing: 2px;
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.5),
+                0 0 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .date-input:focus {
+            border-color: var(--pure-white);
+            box-shadow: 
+                0 0 20px rgba(255, 255, 255, 0.15),
+                inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(2);
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 900;
+            font-size: clamp(1.1rem, 4vw, 1.4rem);
+            color: var(--pure-black);
+            background: var(--pure-white);
+            border: 2px solid var(--pure-white);
+            padding: 14px 36px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            box-shadow: 
+                0 0 25px rgba(255, 255, 255, 0.25),
+                0 0 50px rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            clip-path: polygon(
+                10% 0%, 90% 0%, 
+                100% 20%, 100% 80%, 
+                90% 100%, 10% 100%, 
+                0% 80%, 0% 20%
+            );
+        }
+
+        @media (hover: hover) {
+            .btn-submit:hover {
+                background: var(--pure-black);
+                color: var(--pure-white);
+                border-color: var(--pure-white);
+                box-shadow: 
+                    0 0 50px rgba(255, 255, 255, 0.5),
+                    0 0 100px rgba(255, 255, 255, 0.2);
+                transform: scale(1.06);
+                letter-spacing: 7px;
+            }
+        }
+
+        .btn-submit:active {
+            background: var(--pure-black);
+            color: var(--pure-white);
+            border-color: var(--pure-white);
+            box-shadow: 
+                0 0 60px rgba(255, 255, 255, 0.6),
+                0 0 120px rgba(255, 255, 255, 0.25);
+            transform: scale(0.93);
+            transition: all 0.08s ease;
+        }
+
+        /* Сообщение подтверждения */
+        .confirmation-msg {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: clamp(1rem, 3.5vw, 1.3rem);
+            color: var(--off-white);
+            text-align: center;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 22px 26px;
+            border: 2px solid var(--dark-gray);
+            display: none;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 0 30px rgba(0, 0, 0, 0.7),
+                inset 0 0 20px rgba(0, 0, 0, 0.5);
+            animation: revealMsg 0.5s ease;
+            line-height: 1.5;
+        }
+
+        @keyframes revealMsg {
+            from { 
+                opacity: 0; 
+                transform: scale(0.9);
+                filter: brightness(0);
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1);
+                filter: brightness(1);
+            }
+        }
+
+        /* Toast */
+        .toast-notification {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: var(--off-white);
+            padding: 12px 24px;
+            border: 2px solid var(--dark-gray);
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            z-index: 100;
+            animation: toastShow 0.35s ease, toastHide 0.35s ease 2.2s forwards;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        @keyframes toastShow {
+            from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes toastHide {
+            from { opacity: 1; transform: translateX(-50%) translateY(0); }
+            to { opacity: 0; transform: translateX(-50%) translateY(-18px); }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 360px) {
+            .button-arena {
+                height: 250px;
+            }
+            .btn-yes {
+                padding: 13px 36px;
+                top: 32%;
+            }
+            .btn-no {
+                padding: 12px 30px;
+                left: 48%;
+                top: 56%;
+            }
+            .date-screen {
+                padding: 22px 10px;
+                gap: 20px;
+            }
+        }
+
+        @media (min-width: 400px) {
+            .button-arena {
+                height: 310px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Частицы пепла -->
+    <div class="ash-particles" id="ashParticles"></div>
+
+    <!-- Кресты по углам рамки -->
+    <div class="border-cross tl">✠</div>
+    <div class="border-cross tr">✠</div>
+    <div class="border-cross bl">✠</div>
+    <div class="border-cross br">✠</div>
+
+    <!-- Рамка -->
+    <div class="gothic-border"></div>
+
+    <!-- Контент -->
+    <div class="container">
+        <!-- Экран вопроса -->
+        <div class="question-screen" id="questionScreen">
+            <div class="ornament-divider">
+                <div class="line-segment"></div>
+                <span class="symbol">◈</span>
+                <div class="line-segment"></div>
+            </div>
+
+            <h1 class="title">
+                <span class="accent-name">Маруся,</span><br>пойдём гулять?
+            </h1>
+
+            <div class="ornament-divider">
+                <div class="line-segment"></div>
+                <span class="symbol">◈</span>
+                <div class="line-segment"></div>
+            </div>
+
+            <div class="button-arena" id="buttonArena">
+                <button class="btn-yes" id="btnYes">Да</button>
+                <button class="btn-no" id="btnNo">Нет</button>
+            </div>
+        </div>
+
+        <!-- Экран выбора даты -->
+        <div class="date-screen hidden" id="dateScreen">
+            <h2 id="dateTitle">
+                <span class="white-name">Маруся,</span><br>выбери дату для прогулки
+            </h2>
+            <input type="date" class="date-input" id="dateInput">
+            <button class="btn-submit" id="btnSubmit">Подтвердить</button>
+            <div class="confirmation-msg" id="confirmationMsg"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Создание пепла
+            const ashContainer = document.getElementById('ashParticles');
+            for (let i = 0; i < 30; i++) {
+                const ash = document.createElement('div');
+                ash.classList.add('ash');
+                ash.style.left = Math.random() * 100 + '%';
+                ash.style.width = (Math.random() * 2.5 + 1) + 'px';
+                ash.style.height = ash.style.width;
+                ash.style.animationDuration = (Math.random() * 14 + 16) + 's';
+                ash.style.animationDelay = Math.random() * 16 + 's';
+                ashContainer.appendChild(ash);
+            }
+
+            // DOM-элементы
+            const questionScreen = document.getElementById('questionScreen');
+            const dateScreen = document.getElementById('dateScreen');
+            const btnYes = document.getElementById('btnYes');
+            const btnNo = document.getElementById('btnNo');
+            const buttonArena = document.getElementById('buttonArena');
+            const dateInput = document.getElementById('dateInput');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const confirmationMsg = document.getElementById('confirmationMsg');
+            const dateTitle = document.getElementById('dateTitle');
+
+            // Toast
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.classList.add('toast-notification');
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2600);
+            }
+
+            // Перемещение кнопки «Нет»
+            function moveNoButton() {
+                const arenaRect = buttonArena.getBoundingClientRect();
+                const btnRect = btnNo.getBoundingClientRect();
+
+                const padding = 5;
+                const maxX = arenaRect.width - btnRect.width - padding * 2;
+                const maxY = arenaRect.height - btnRect.height - padding * 2;
+
+                const randomX = Math.max(padding, Math.floor(Math.random() * maxX) + padding);
+                const randomY = Math.max(padding, Math.floor(Math.random() * maxY) + padding);
+
+                btnNo.style.left = randomX + 'px';
+                btnNo.style.top = randomY + 'px';
+            }
+
+            // События кнопки «Нет»
+            btnNo.addEventListener('mouseenter', moveNoButton);
+            btnNo.addEventListener('click', (e) => {
+                e.preventDefault();
+                moveNoButton();
+            });
+            btnNo.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                moveNoButton();
+            });
+
+            // Кнопка «Да»
+            btnYes.addEventListener('click', () => {
+                questionScreen.classList.add('hidden');
+                dateScreen.classList.remove('hidden');
+                dateInput.value = '';
+                confirmationMsg.style.display = 'none';
+                dateTitle.innerHTML = '<span class="white-name">Маруся,</span><br>выбери дату для прогулки';
+                dateInput.style.display = '';
+                btnSubmit.style.display = '';
+            });
+
+            // Подтверждение даты
+            btnSubmit.addEventListener('click', () => {
+                const selectedDate = dateInput.value;
+                if (!selectedDate) {
+                    showToast('Маруся, выбери дату...');
+                    return;
+                }
+
+                const dateObj = new Date(selectedDate);
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = dateObj.toLocaleDateString('ru-RU', options);
+
+                confirmationMsg.textContent = `Маруся, встречаемся\n${formattedDate} ◈`;
+                confirmationMsg.style.display = 'block';
+                dateInput.style.display = 'none';
+                btnSubmit.style.display = 'none';
+                dateTitle.innerHTML = 'Прогулка<br>предрешена';
+            });
+
+            // Инициализация
+            window.addEventListener('load', () => {
+                dateScreen.classList.add('hidden');
+                questionScreen.classList.remove('hidden');
+            });
+
+            // Предотвращение двойного тапа
+            document.addEventListener('dblclick', function(e) {
+                if (e.target.tagName === 'BUTTON') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        })();
+    </script>
+</body>
+</html>
